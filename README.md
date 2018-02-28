@@ -1,10 +1,14 @@
-# BottomBar
+# BottomBar (Deprecated)
+
+I don't have time to maintain this anymore. I basically wrote the whole library in a rush, without tests, while being a serious expert beginner at the time. As a result, there's a lot of unpredictable moving parts and the tests probably aren't that great either. Don't really know, since I haven't touched this in ages.
+
+I'd recommend you to use the official BottomNavigationView from Google and urge them to implement the features you need. Or use another 3rd party library.
+
+If someone wants to pick up where I left off, make a fork of this, notify me and I'll link to your repo here.
 
 [![Build Status](https://travis-ci.org/roughike/BottomBar.svg?branch=master)](https://travis-ci.org/roughike/BottomBar) [![Coverage Status](https://coveralls.io/repos/github/roughike/BottomBar/badge.svg?branch=development)](https://coveralls.io/github/roughike/BottomBar?branch=master) [![Download](https://api.bintray.com/packages/roughike/maven/bottom-bar/images/download.svg)](https://bintray.com/roughike/maven/bottom-bar/_latestVersion)
 
 <img src="https://raw.githubusercontent.com/roughike/BottomBar/master/graphics/shy-demo.gif" width="30%" /> <img src="https://raw.githubusercontent.com/roughike/BottomBar/master/graphics/shifting-demo.gif" width="30%" /> <img src="https://raw.githubusercontent.com/roughike/BottomBar/master/graphics/screenshot_tablet.png" width="33%" />
-
-[Discussion about maintenance status](https://github.com/roughike/BottomBar/issues/606)
 
 ## Version 2.0 released!
 
@@ -26,14 +30,12 @@ A custom view component that mimics the new [Material Design Bottom Navigation p
 
 ## Does it work on my Grandpa Gary's HTC Dream?
 
-Nope. The current minSDK version is **API level 11 (Honeycomb).**
-
-Your uncle Bob's Galaxy S Mini will probably be supported in the future though. 
+Nope. The minSDK version is **API level 11 (Honeycomb).**
 
 ## Gimme that Gradle sweetness, pls?
 
 ```groovy
-compile 'com.roughike:bottom-bar:2.1.1'
+compile 'com.roughike:bottom-bar:2.3.1'
 ```
 
 **Maven:**
@@ -41,7 +43,7 @@ compile 'com.roughike:bottom-bar:2.1.1'
 <dependency>
   <groupId>com.roughike</groupId>
   <artifactId>bottom-bar</artifactId>
-  <version>2.1.1</version>
+  <version>2.3.1</version>
   <type>pom</type>
 </dependency>
 ```
@@ -145,6 +147,49 @@ bottomBar.setOnTabReselectListener(new OnTabReselectListener() {
         }
     }
 });
+```
+
+### Intercepting tab selections
+
+If you want to conditionally cancel selection of any tab, you absolutely can. Just assign a ```TabSelectionInterceptor``` to the BottomBar, and return true from the ```shouldInterceptTabSelection()``` method.
+
+```java
+bottomBar.setTabSelectionInterceptor(new TabSelectionInterceptor() {
+    @Override
+    public boolean shouldInterceptTabSelection(@IdRes int oldTabId, @IdRes int newTabId) {
+        if (newTabId == R.id.tab_pro_feature && !userHasProVersion()) {
+          startProVersionPurchaseFlow();
+          return true;
+        }
+        
+        return false;
+    }
+});
+```
+
+### Changing icons based on selection state
+
+If you want to have different icon when a specific tab is selected, just use state list drawables.
+
+**res/drawable/my_tab_icon.xml**
+
+```xml
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/ic_myicon_selected" android:state_selected="true" />
+    <item android:drawable="@drawable/ic_myicon_default" android:state_selected="false" />
+</selector>
+```
+
+**res/xml/bottombar_tabs.xml**
+
+```xml
+...
+<tab
+    id="@+id/tab_favorites"
+    icon="@drawable/my_tab_icon"
+    title="Favorites" />
+<!-- You can use @color resources too! -->
+...
 ```
 
 ### Those color changing tabs look dope. Howdoidodat?
@@ -308,6 +353,7 @@ nearby.removeBadge/();
     app:bb_activeTabAlpha="1"
     app:bb_inActiveTabColor="#222222"
     app:bb_activeTabColor="@color/colorPrimary"
+    app:bb_badgesHideWhenActive="true"
     app:bb_titleTextAppearance="@style/MyTextAppearance"
     app:bb_titleTypeFace="fonts/MySuperDuperFont.ttf"
     app:bb_showShadow="true" />
@@ -330,6 +376,8 @@ nearby.removeBadge/();
     <dd>the color for active tabs, that's used in the tab icons and titles.</dd>
     <dt>bb_badgeBackgroundColor</dt>
     <dd>the background color for any Badges in this BottomBar.</dd>
+    <dt>bb_badgesHideWhenActive</dt>
+    <dd>whether badges should be hidden for active tabs, defaults to true.</dd>
     <dt>bb_titleTextAppearance</dt>
     <dd>custom textAppearance for the titles</dd>
     <dt>bb_titleTypeFace</dt>
@@ -348,7 +396,8 @@ nearby.removeBadge/();
     inActiveColor="#00FF00"
     activeColor="#FF0000"
     barColorWhenSelected="#FF0000"
-    badgeBackgroundColor="#FF0000" />
+    badgeBackgroundColor="#FF0000"
+    badgeHidesWhenActive="true" />
 ```
 
 <dl>
@@ -360,8 +409,8 @@ nearby.removeBadge/();
     <dd>the color that the whole BottomBar should be when selected this tab.</dd>
     <dt>badgeBackgroundColor</dt>
     <dd>the background color for any Badges in this tab.</dd>
-    <dt></dt>
-    <dd></dd>
+    <dt>badgeHidesWhenActive</dt>
+    <dd>whether or not the badge should be hidden when this tab is selected, defaults to true.</dd>
     <dt></dt>
     <dd></dd>
 </dl>
